@@ -130,13 +130,67 @@
 
       <div
         class="relative mx-auto max-w-3xl mb-10 rounded-2xl overflow-hidden ring-1 ring-[#38B6FF]/30 shadow-[0_20px_60px_-20px_rgba(56,182,255,0.4)]">
-        <div style="position:relative;padding-top:56.25%;">
-          <iframe src="https://player.vimeo.com/video/1208196451?autoplay=1&muted=1&dnt=1"
+        <div style="position:relative;padding-top:56.25%;background:#000;">
+          <iframe id="heroVimeo" src="https://player.vimeo.com/video/1208196451?autoplay=1&muted=1&controls=0&dnt=1"
             style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"
             title="Better Body Academy"
             allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+          <div style="position:absolute;left:0;right:0;bottom:0;padding:20px 16px 12px;background:linear-gradient(transparent,rgba(0,0,0,.65));display:flex;align-items:center;gap:12px;">
+            <button type="button" id="hvPlay" aria-label="Play or pause" style="background:none;border:0;color:#fff;cursor:pointer;padding:0;display:flex;flex:none;">
+              <svg id="hvPlayIcon" width="22" height="22" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"></rect><rect x="14" y="5" width="4" height="14" rx="1"></rect></svg>
+            </button>
+            <div id="hvTrack" style="position:relative;flex:1 1 auto;height:6px;border-radius:9999px;background:rgba(255,255,255,.28);cursor:pointer;touch-action:none;">
+              <div id="hvFill" style="position:absolute;left:0;top:0;bottom:0;width:0;border-radius:9999px;background:#38B6FF;"></div>
+              <div id="hvHandle" style="position:absolute;top:50%;left:0;width:14px;height:14px;border-radius:50%;background:#fff;transform:translate(-50%,-50%);box-shadow:0 1px 4px rgba(0,0,0,.55);"></div>
+            </div>
+            <span id="hvTime" style="color:#fff;font-size:12px;font-variant-numeric:tabular-nums;flex:none;min-width:78px;text-align:right;">0:00 / 0:00</span>
+            <button type="button" id="hvMute" aria-label="Mute or unmute" style="background:none;border:0;color:#fff;cursor:pointer;padding:0;display:flex;flex:none;">
+              <svg id="hvMuteIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="#fff" stroke="#fff"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+            </button>
+            <button type="button" id="hvFs" aria-label="Fullscreen" style="background:none;border:0;color:#fff;cursor:pointer;padding:0;display:flex;flex:none;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+            </button>
+          </div>
         </div>
       </div>
+      <script src="https://player.vimeo.com/api/player.js"></script>
+      <script>
+        (function () {
+          var f = document.getElementById('heroVimeo');
+          if (!f || !window.Vimeo) return;
+          var p = new Vimeo.Player(f);
+          var track = document.getElementById('hvTrack'),
+              fill = document.getElementById('hvFill'),
+              handle = document.getElementById('hvHandle'),
+              timeEl = document.getElementById('hvTime'),
+              playBtn = document.getElementById('hvPlay'),
+              playIcon = document.getElementById('hvPlayIcon'),
+              muteBtn = document.getElementById('hvMute'),
+              muteIcon = document.getElementById('hvMuteIcon'),
+              fsBtn = document.getElementById('hvFs');
+          var dur = 0, muted = true, playing = true;
+          var PAUSE_ICON = '<rect x="6" y="5" width="4" height="14" rx="1"></rect><rect x="14" y="5" width="4" height="14" rx="1"></rect>';
+          var PLAY_ICON = '<path d="M8 5v14l11-7z"></path>';
+          var MUTED_ICON = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="#fff" stroke="#fff"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>';
+          var SOUND_ICON = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="#fff" stroke="#fff"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>';
+          function fmt(s) { s = Math.max(0, Math.floor(s || 0)); var m = Math.floor(s / 60), ss = s % 60; return m + ':' + (ss < 10 ? '0' : '') + ss; }
+          function setBar(pct) { pct = Math.max(0, Math.min(1, pct)); fill.style.width = (pct * 100) + '%'; handle.style.left = (pct * 100) + '%'; }
+          p.getDuration().then(function (d) { dur = d; timeEl.textContent = '0:00 / ' + fmt(d); }).catch(function(){});
+          p.on('timeupdate', function (d) { dur = d.duration; setBar(d.percent); timeEl.textContent = fmt(d.seconds) + ' / ' + fmt(d.duration); });
+          p.on('play', function () { playing = true; playIcon.innerHTML = PAUSE_ICON; });
+          p.on('pause', function () { playing = false; playIcon.innerHTML = PLAY_ICON; });
+          p.on('ended', function () { playing = false; playIcon.innerHTML = PLAY_ICON; });
+          playBtn.addEventListener('click', function () { playing ? p.pause() : p.play(); });
+          muteBtn.addEventListener('click', function () { muted = !muted; p.setMuted(muted); muteIcon.innerHTML = muted ? MUTED_ICON : SOUND_ICON; });
+          fsBtn.addEventListener('click', function () { if (p.requestFullscreen) { p.requestFullscreen().catch(function(){}); } });
+          var dragging = false;
+          function seekAt(clientX) { var r = track.getBoundingClientRect(); var x = (clientX - r.left) / r.width; x = Math.max(0, Math.min(1, x)); setBar(x); if (dur) p.setCurrentTime(x * dur); }
+          track.addEventListener('pointerdown', function (e) { dragging = true; try { track.setPointerCapture(e.pointerId); } catch (err) {} seekAt(e.clientX); });
+          track.addEventListener('pointermove', function (e) { if (dragging) seekAt(e.clientX); });
+          track.addEventListener('pointerup', function () { dragging = false; });
+          track.addEventListener('pointercancel', function () { dragging = false; });
+        })();
+      </script>
 
     </div>
   </section>
