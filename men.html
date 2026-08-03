@@ -1232,6 +1232,35 @@
       });
     })();
   </script>
+
+  <!-- Embed helper: only runs when this page is loaded inside an iframe (e.g. GoHighLevel).
+       Reports its height to the parent so the frame auto-sizes, and relays in-page
+       anchor clicks so the parent page scrolls. Does nothing when viewed directly. -->
+  <script>
+    (function () {
+      if (window.parent === window) return; // not embedded — do nothing
+      function postHeight() {
+        var h = Math.max(
+          document.body.scrollHeight, document.documentElement.scrollHeight,
+          document.body.offsetHeight, document.documentElement.offsetHeight
+        );
+        window.parent.postMessage({ bbaFrameHeight: h }, '*');
+      }
+      window.addEventListener('load', postHeight);
+      window.addEventListener('resize', postHeight);
+      if (window.ResizeObserver) { try { new ResizeObserver(postHeight).observe(document.body); } catch (e) {} }
+      setInterval(postHeight, 1200); // safety net for late-loading media
+      document.addEventListener('click', function (e) {
+        var a = e.target.closest && e.target.closest('a[href^="#"]');
+        if (!a) return;
+        var href = a.getAttribute('href');
+        var el = href.length > 1 ? document.querySelector(href) : document.body;
+        if (!el) return;
+        var top = el.getBoundingClientRect().top + (window.pageYOffset || 0);
+        window.parent.postMessage({ bbaScrollTo: top }, '*');
+      }, true);
+    })();
+  </script>
 </body>
 
 </html>
