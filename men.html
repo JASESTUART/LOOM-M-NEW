@@ -131,12 +131,23 @@
       <div
         class="relative mx-auto max-w-3xl mb-10 rounded-2xl overflow-hidden ring-1 ring-[#38B6FF]/30 shadow-[0_20px_60px_-20px_rgba(56,182,255,0.4)]">
         <div style="position:relative;padding-top:56.25%;">
-          <iframe src="https://player.vimeo.com/video/1208196451?dnt=1"
-            style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"
-            title="Better Body Academy" loading="lazy"
-            allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+          <button type="button" onclick="playHeroVideo(this)" aria-label="Play video"
+            style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;padding:0;cursor:pointer;background:#050505;overflow:hidden;">
+            <img src="jase-founder.webp" alt="Watch: Let me show you how" loading="lazy"
+              style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:center 20%;" />
+            <span style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(0,0,0,.10),rgba(0,0,0,.48));"></span>
+            <span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:84px;height:84px;border-radius:9999px;background:rgba(56,182,255,.95);display:flex;align-items:center;justify-content:center;box-shadow:0 12px 40px -8px rgba(56,182,255,.7);">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
+            </span>
+          </button>
         </div>
       </div>
+      <script>
+        function playHeroVideo(btn){
+          var box = btn.parentNode;
+          box.innerHTML = '<iframe src="https://player.vimeo.com/video/1208196451?autoplay=1&dnt=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" title="Better Body Academy" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
+        }
+      </script>
 
     </div>
   </section>
